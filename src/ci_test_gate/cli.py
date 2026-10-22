@@ -281,7 +281,7 @@ def _handle_suggest(args) -> int:
         sarif_doc = recommendation_to_sarif(
             recommendation.required,
             recommendation.recommended,
-            all_changed_files=[f.path for f in changes],
+            all_changed_files=[f.path for f in changes if not f.is_test_file],
             tool_version=__version__,
         )
         print(sarif_to_string(sarif_doc))

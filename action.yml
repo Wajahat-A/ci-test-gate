@@ -43,10 +43,15 @@ runs:
     - name: Run ci-test-gate
       shell: bash
       run: |
+        ARGS=(suggest --mode "${{ inputs.mode }}")
         if [ -n "${{ inputs.diff-file }}" ]; then
-          ci-test-gate suggest --diff "${{ inputs.diff-file }}" --mode ${{ inputs.mode }}
+          ARGS+=(--diff "${{ inputs.diff-file }}")
         else
           BASE="${{ github.base_ref || 'main' }}"
           git diff "origin/${BASE}...HEAD" > /tmp/pr_diff.txt
-          ci-test-gate suggest --diff /tmp/pr_diff.txt --mode ${{ inputs.mode }}
+          ARGS+=(--diff /tmp/pr_diff.txt)
         fi
+        if [ -n "${{ inputs.test-files-list }}" ]; then
+          ARGS+=(--test-files "${{ inputs.test-files-list }}")
+        fi
+        ci-test-gate "${ARGS[@]}"
