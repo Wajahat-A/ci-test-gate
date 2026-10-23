@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 from dataclasses import dataclass, field
 
 from .context_builder import ChangeContext
 from .context_builder import is_config_file
 from .llm import LLMConfig
+
+logger = logging.getLogger(__name__)
+
 
 # Module-level placeholder so tests can patch OpenAI without triggering a
 # hard import at import time (the openai package is optional at runtime).
@@ -273,6 +277,7 @@ class LLMTestClassifier(TestClassifier):
             )
         except Exception as exc:
             # Any failure (network, parse, etc.) → heuristic fallback.
+            logger.warning("LLM classifier failed, falling back to heuristic: %s", exc)
             fallback = self.heuristic_classify(changes, context, test_files)
             fallback.reasoning = (
                 f"LLM call failed ({type(exc).__name__}: {exc}); "
