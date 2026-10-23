@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 
@@ -14,6 +15,9 @@ from .models import (
     TestRisk,
     TestSuite,
 )
+
+logger = logging.getLogger(__name__)
+
 
 # System prompt for the LLM
 SYSTEM_PROMPT = """You are a test selection expert. Given a code diff and project context, classify which test suites should be run.
@@ -294,6 +298,7 @@ def classify_with_llm(ctx: AnalysisContext, config: LLMConfig | None = None) -> 
 
     except Exception as e:
         # Fallback on any error
+        logger.warning("LLM classification failed, falling back: %s", e)
         result = _fallback_classify(ctx)
         result.summary = f"LLM failed ({type(e).__name__}); fallback: {result.summary}"
         return result
